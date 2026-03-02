@@ -33,7 +33,7 @@ export default function WelcomePage() {
               科学评估
             </h3>
             <p className="text-slate-600 dark:text-slate-400 text-sm">
-              24道题目，6个维度，系统分析你的能力结构
+              36道情境题 + 4道冲突题，6个维度，系统分析你的能力结构
             </p>
           </div>
 
@@ -80,7 +80,7 @@ export default function WelcomePage() {
                 2
               </div>
               <h4 className="font-semibold mb-1 text-slate-900 dark:text-white">完成能力测评</h4>
-              <p className="text-sm text-slate-600 dark:text-slate-400">24道Likert量表题</p>
+              <p className="text-sm text-slate-600 dark:text-slate-400">36道情境题 + 4道关键取舍题</p>
             </div>
             <div className="text-center">
               <div className="w-10 h-10 bg-blue-600 text-white rounded-full flex items-center justify-center mx-auto mb-3 font-bold">

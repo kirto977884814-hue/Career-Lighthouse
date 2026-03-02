@@ -1,7 +1,7 @@
 import { Dimension, DimensionScores, CareerPath, PathMatchResult, TestResult, UserInfo } from '@/types';
 import { PATH_VECTORS, PATH_NAMES, PATH_DESCRIPTIONS, calculatePathMatch, calculateMatchPercent } from '@/data/paths';
 import { ACTION_PLANS } from '@/data/actionPlans';
-import { QUESTIONS } from '@/data/questions';
+import { QUESTIONS, CONFLICT_QUESTIONS } from '@/data/questions';
 
 // 计算维度平均分 (支持反向题)
 export function calculateDimensionScores(answers: Record<string, number>): DimensionScores {
@@ -56,27 +56,46 @@ export function getAllPathMatches(userScores: DimensionScores): PathMatchResult[
   return results.sort((a, b) => b.score - a.score);
 }
 
-// 生成完整测试结果
+// 生成完整测试结果 (支持冲突题)
 export function generateTestResult(
   userInfo: UserInfo,
-  answers: Record<string, number>
+  answers: Record<string, number>,
+  conflictAnswers?: Record<string, string> // 新增冲突题答案参数
 ): TestResult {
   // 1. 计算维度得分
-  const dimensionScores = calculateDimensionScores(answers);
+  let dimensionScores = calculateDimensionScores(answers);
 
-  // 2. 获取所有路径匹配结果
+  // 2. 如果有冲突题答案，应用冲突题加分
+  if (conflictAnswers) {
+    CONFLICT_QUESTIONS.forEach(conflictQ => {
+      const selectedOptionId = conflictAnswers[conflictQ.id];
+      const selectedOption = conflictQ.options.find(opt => opt.id === selectedOptionId);
+
+      if (selectedOption) {
+        const dim = selectedOption.dimension;
+        dimensionScores[dim] += selectedOption.bonus;
+      }
+    });
+
+    // 确保分数在合理范围内 [0, 5]
+    Object.keys(dimensionScores).forEach(dim => {
+      dimensionScores[dim as keyof DimensionScores] = Math.max(0, Math.min(5, dimensionScores[dim as keyof DimensionScores]));
+    });
+  }
+
+  // 3. 获取所有路径匹配结果
   const pathMatches = getAllPathMatches(dimensionScores);
 
-  // 3. 主路径(得分最高)
+  // 4. 主路径(得分最高)
   const primaryPath = pathMatches[0];
 
-  // 4. 可演化路径(得分第二)
+  // 5. 可演化路径(得分第二)
   const evolvablePath = pathMatches[1];
 
-  // 5. 不优先路径(得分最低的两个)
+  // 6. 不优先路径(得分最低的两个)
   const notPriorityPaths = pathMatches.slice(-2);
 
-  // 6. 30天行动清单
+  // 7. 30天行动清单
   const actionPlan = ACTION_PLANS[primaryPath.pathId];
 
   return {
