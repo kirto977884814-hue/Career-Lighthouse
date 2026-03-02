@@ -19,11 +19,12 @@ import {
   Check
 } from 'lucide-react';
 import { Radar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, ResponsiveContainer, Cell } from 'recharts';
-import { generateTestResult } from '@/lib/calculator';
+import { generateTestResult, generateGapAnalysis } from '@/lib/calculator';
 import { saveResult } from '@/lib/storage';
 import { TestResult, DIMENSION_NAMES } from '@/types';
 import { ACTION_PLANS } from '@/data/actionPlans';
 import { PATH_DESCRIPTIONS } from '@/data/paths';
+import { PATH_DETAILS } from '@/data/pathDetails';
 
 function ResultsContent() {
   const router = useRouter();
@@ -259,6 +260,42 @@ ${result.evolvablePath ? `📈 潜在演化路径：${PATH_DESCRIPTIONS[result.e
                   <p className="font-medium text-slate-900 dark:text-white">需要注意</p>
                   <p className="text-slate-600 dark:text-slate-400">{primaryPathInfo.difficultyReminder}</p>
                 </div>
+              </div>
+            </div>
+
+            {/* 新增：能力差距分析 */}
+            {(() => {
+              const gaps = generateGapAnalysis(result.primaryPath.pathId, result.dimensionScores);
+              if (gaps.length > 0) {
+                return (
+                  <div className="mt-4 p-4 bg-amber-50 dark:bg-amber-900/20 rounded-lg border border-amber-200 dark:border-amber-800">
+                    <h4 className="font-semibold text-amber-900 dark:text-amber-100 mb-2">能力差距提示</h4>
+                    <ul className="space-y-1">
+                      {gaps.map((gap, index) => (
+                        <li key={index} className="text-sm text-amber-800 dark:text-amber-200 flex items-start gap-2">
+                          <span className="text-amber-600 dark:text-amber-400 mt-0.5">•</span>
+                          <span>{gap}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                );
+              }
+              return null;
+            })()}
+
+            {/* 新增：现实岗位映射 */}
+            <div className="mt-4 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
+              <h4 className="font-semibold text-blue-900 dark:text-blue-100 mb-2">现实岗位映射</h4>
+              <div className="flex flex-wrap gap-2">
+                {PATH_DETAILS[result.primaryPath.pathId].realJobs.map((job, index) => (
+                  <span
+                    key={index}
+                    className="inline-block px-3 py-1 bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300 text-sm rounded-full"
+                  >
+                    {job}
+                  </span>
+                ))}
               </div>
             </div>
           </div>

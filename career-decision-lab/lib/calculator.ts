@@ -2,6 +2,7 @@ import { Dimension, DimensionScores, CareerPath, PathMatchResult, TestResult, Us
 import { PATH_VECTORS, PATH_NAMES, PATH_DESCRIPTIONS, calculatePathMatch, calculateMatchPercent } from '@/data/paths';
 import { ACTION_PLANS } from '@/data/actionPlans';
 import { QUESTIONS, CONFLICT_QUESTIONS } from '@/data/questions';
+import { PATH_DETAILS } from '@/data/pathDetails';
 
 // 计算维度平均分 (支持反向题)
 export function calculateDimensionScores(answers: Record<string, number>): DimensionScores {
@@ -139,4 +140,19 @@ export function generateAbilityDescription(scores: DimensionScores): string {
   } else {
     return `你的能力结构相对均衡,各项能力发展较为平均。`;
   }
+}
+
+// 生成动态差距分析
+export function generateGapAnalysis(pathId: CareerPath, userScores: DimensionScores): string[] {
+  const pathDetail = PATH_DETAILS[pathId];
+  const gaps: string[] = [];
+
+  pathDetail.gapAnalysis.forEach(gap => {
+    const score = userScores[gap.dimension];
+    if (score < gap.threshold) {
+      gaps.push(gap.advice);
+    }
+  });
+
+  return gaps;
 }
