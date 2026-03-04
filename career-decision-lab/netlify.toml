@@ -7,6 +7,7 @@
   NODE_ENV = "production"
   DEPLOY_TARGET = "netlify"
   NODE_VERSION = "20"
+  NPM_CONFIG_PRODUCTION = "false"
 
 [dev]
   command = "npm run dev"
