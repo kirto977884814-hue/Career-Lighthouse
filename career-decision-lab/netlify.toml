@@ -6,6 +6,13 @@
 [build.environment]
   NODE_ENV = "production"
   DEPLOY_TARGET = "netlify"
+  NODE_VERSION = "20"
+  NPM_FLAGS = "--legacy-peer-deps"
+
+[dev]
+  command = "npm run dev"
+  port = 3000
+  publish = "out"
 
 [[redirects]]
   from = "/*"
