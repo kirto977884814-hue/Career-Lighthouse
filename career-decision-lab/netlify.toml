@@ -1,10 +1,14 @@
 [build]
-  command = "npm run build"
+  command = "DEPLOY_TARGET=netlify npm run build"
   publish = "out"
 
 [build.environment]
   NODE_ENV = "production"
-  DEPLOY_TARGET = "github-pages"
+
+[[redirects]]
+  from = "/Career-Decision-Lab/*"
+  to = "/:splat"
+  status = 200
 
 [[redirects]]
   from = "/*"
