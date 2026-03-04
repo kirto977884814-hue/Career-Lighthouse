@@ -1,5 +1,4 @@
 [build]
-  base = "career-decision-lab/"
   command = "npm ci && npm run build"
   publish = "out"
 
