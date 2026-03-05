@@ -13,8 +13,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "职业决策实验室 - Career Decision Lab",
-  description: "通过科学评估，发现最适合你的职业方向，获得阶段性建议与具体行动清单",
+  title: "职业灯塔 - 照亮你的方向",
+  description: "在迷茫的黑夜里，我们用科学为你点亮灯塔。基于六维能力分析和AI技术，科学匹配最适合你的职业方向。",
 };
 
 export default function RootLayout({
