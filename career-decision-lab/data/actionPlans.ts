@@ -41,7 +41,7 @@ export const ACTION_PLANS: Record<CareerPath, WeeklyAction[]> = {
     }
   ],
 
-  deepSpecialist: [
+  academic: [
     {
       week: 1,
       title: '方向确认',
@@ -78,7 +78,7 @@ export const ACTION_PLANS: Record<CareerPath, WeeklyAction[]> = {
     }
   ],
 
-  techApplication: [
+  tech: [
     {
       week: 1,
       title: '技术选型',
@@ -115,7 +115,7 @@ export const ACTION_PLANS: Record<CareerPath, WeeklyAction[]> = {
     }
   ],
 
-  productStrategy: [
+  professional: [
     {
       week: 1,
       title: '产品认知',
@@ -151,7 +151,7 @@ export const ACTION_PLANS: Record<CareerPath, WeeklyAction[]> = {
     }
   ],
 
-  growthOperation: [
+  sales: [
     {
       week: 1,
       title: '案例研究',
@@ -186,7 +186,7 @@ export const ACTION_PLANS: Record<CareerPath, WeeklyAction[]> = {
     }
   ],
 
-  contentExpression: [
+  creative: [
     {
       week: 1,
       title: '方向定位',
@@ -221,7 +221,7 @@ export const ACTION_PLANS: Record<CareerPath, WeeklyAction[]> = {
     }
   ],
 
-  educationSupport: [
+  education: [
     {
       week: 1,
       title: '方向确认',
@@ -256,7 +256,7 @@ export const ACTION_PLANS: Record<CareerPath, WeeklyAction[]> = {
     }
   ],
 
-  entrepreneurship: [
+  management: [
     {
       week: 1,
       title: '机会发现',

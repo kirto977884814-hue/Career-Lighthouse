@@ -1,51 +1,285 @@
-import { Dimension, DimensionScores, CareerPath, PathMatchResult, TestResult, UserInfo } from '@/types';
-import { PATH_VECTORS, PATH_NAMES, PATH_DESCRIPTIONS, calculatePathMatch, calculateMatchPercent } from '@/data/paths';
+import {
+  Dimension,
+  DimensionScores,
+  RawScores,
+  DecisionStyle,
+  SelfAwareness,
+  CareerPath,
+  PathMatchResult,
+  TestResult,
+  UserInfo,
+  ScenarioAnswer,
+  CareerPathData,
+  VetoRule
+} from '@/types';
+import { PATH_DATA } from '@/data/paths';
 import { ACTION_PLANS } from '@/data/actionPlans';
-import { QUESTIONS, CONFLICT_QUESTIONS } from '@/data/questions';
-import { PATH_DETAILS } from '@/data/pathDetails';
 import { generatePersonalizedActionPlan, addAbilityBasedTasks } from '@/lib/dynamicActionPlan';
 
-// 计算维度平均分 (支持反向题)
-export function calculateDimensionScores(answers: Record<string, number>): DimensionScores {
-  const scores: Record<string, number[]> = {
-    S: [], A: [], R: [], E: [], X: [], C: []
+// ============================================================================
+// v5.0 核心算法：现实vs意愿 + 决策风格 + 核心动机 + 一票否决
+// ============================================================================
+
+/**
+ * 计算加权维度得分（现实30% + 意愿70%）
+ * 这是v5.0的核心创新：发现被环境压抑的潜力
+ */
+export function calculateWeightedScores(rawScores: RawScores): DimensionScores {
+  const dimensions: Dimension[] = ['S', 'A', 'R', 'E', 'X', 'C'];
+  const result: Partial<DimensionScores> = {};
+
+  dimensions.forEach(dim => {
+    const realScore = rawScores[`${dim}_real` as keyof RawScores];
+    const idealScore = rawScores[`${dim}_ideal` as keyof RawScores];
+
+    // 加权公式：现实30% + 意愿70%
+    // 理由：当前行为可能被环境压抑（如工科生压抑表达倾向），真实意愿更能反映潜力
+    const weighted = realScore * 0.3 + idealScore * 0.7;
+
+    result[dim] = Math.round(weighted * 10) / 10;
+  });
+
+  return result as DimensionScores;
+}
+
+/**
+ * 计算自我认知度
+ * 通过现实与意愿的差距来衡量用户对自己的了解程度
+ */
+export function calculateSelfAwareness(rawScores: RawScores): SelfAwareness {
+  const dimensions: Dimension[] = ['S', 'A', 'R', 'E', 'X', 'C'];
+  const dimensionsData: SelfAwareness['dimensions'] = {} as SelfAwareness['dimensions'];
+
+  let totalGap = 0;
+
+  dimensions.forEach(dim => {
+    const realScore = rawScores[`${dim}_real` as keyof RawScores];
+    const idealScore = rawScores[`${dim}_ideal` as keyof RawScores];
+    const gap = Math.abs(realScore - idealScore);
+
+    totalGap += gap;
+
+    // 认知度分级
+    let awareness: 'low' | 'medium' | 'high';
+    if (gap <= 1) {
+      awareness = 'high';      // 现实与意愿一致，认知度高
+    } else if (gap <= 2.5) {
+      awareness = 'medium';    // 有一定差距，认知度中等
+    } else {
+      awareness = 'low';       // 差距很大，可能还没发现潜力
+    }
+
+    dimensionsData[dim] = { gap, awareness };
+  });
+
+  // 总体认知度：平均差距越小，认知度越高
+  const avgGap = totalGap / dimensions.length;
+  const overallScore = Math.max(0, 1 - avgGap / 5);  // 转换到[0,1]
+
+  return {
+    score: Math.round(overallScore * 100) / 100,
+    dimensions: dimensionsData
+  };
+}
+
+/**
+ * 从深度情境题中提取决策风格
+ * 分析用户在真实场景中的决策倾向
+ */
+export function calculateDecisionStyle(scenarioAnswers: ScenarioAnswer[]): DecisionStyle {
+  // 初始化各风格得分
+  const scores = {
+    conservative: 0,
+    flexible: 0,
+    adventurous: 0,
+    pragmatic: 0
   };
 
-  // 收集每个维度的所有答案，并处理反向题
-  Object.entries(answers).forEach(([questionId, score]) => {
-    const dimension = questionId.charAt(0) as Dimension;
-    if (scores[dimension]) {
-      // 查找对应的题目配置
-      const question = QUESTIONS.find(q => q.id === questionId);
+  // 根据情境题答案累加得分
+  // 这里需要根据具体的情境题设计来实现
+  // 暂时返回默认值，后续在问卷设计中完善
+  scenarioAnswers.forEach(answer => {
+    // TODO: 根据scenarioId和choice来分配得分
+    // 例如：选择"稳定工作"会增加conservative得分
+    // 选择"创业机会"会增加adventurous得分
+  });
 
-      // 如果是反向题，转换分数 (6 - 原分数)
-      const finalScore = question?.reverse ? (6 - score) : score;
+  return scores;
+}
 
-      scores[dimension].push(finalScore);
+/**
+ * 计算单个维度的匹配度
+ */
+function calculateDimensionMatch(
+  userScore: number,
+  pathRequired: number
+): number {
+  const gap = Math.abs(userScore - pathRequired);
+
+  // 差距为0时得1分，差距为8时得0分
+  return Math.max(0, 1 - gap / 8);
+}
+
+/**
+ * 计算六维度整体匹配度（占60%权重）
+ */
+function calculateDimensionsMatch(
+  userScores: DimensionScores,
+  pathDimensions: [number, number, number, number, number, number]
+): number {
+  const dimensions: Dimension[] = ['S', 'A', 'R', 'E', 'X', 'C'];
+  let totalMatch = 0;
+
+  dimensions.forEach((dim, index) => {
+    const userScore = userScores[dim];
+    const pathRequired = pathDimensions[index];
+
+    // 对于负值（排斥维度），需要特殊处理
+    if (pathRequired < 0) {
+      // pathRequired是负数，例如-8表示"风险承受度越低越好"
+      // 期望的用户得分 = 8 + pathRequired
+      const expectedLow = 8 + pathRequired;  // -8 → 0, -6 → 2
+      const gap = Math.abs(userScore - expectedLow);
+      const matchScore = Math.max(0, 1 - gap / 8);
+      totalMatch += matchScore;
+    } else {
+      // 正常维度
+      totalMatch += calculateDimensionMatch(userScore, pathRequired);
     }
   });
 
-  // 计算平均值
-  const result: DimensionScores = {
-    S: 0, A: 0, R: 0, E: 0, X: 0, C: 0
-  };
-
-  Object.entries(scores).forEach(([dim, values]) => {
-    const sum = values.reduce((a, b) => a + b, 0);
-    result[dim as Dimension] = Math.round((sum / values.length) * 10) / 10; // 保留一位小数
-  });
-
-  return result;
+  return totalMatch / dimensions.length;
 }
 
-// 获取所有路径的匹配结果并排序
-export function getAllPathMatches(userScores: DimensionScores): PathMatchResult[] {
-  const paths = Object.keys(PATH_VECTORS) as CareerPath[];
+/**
+ * 计算决策风格匹配度（占25%权重）
+ */
+function calculateStyleMatch(
+  userStyle: DecisionStyle,
+  pathIdealStyle: DecisionStyle
+): number {
+  const styles = ['conservative', 'flexible', 'adventurous', 'pragmatic'] as const;
+
+  let totalMatch = 0;
+  styles.forEach(style => {
+    const userScore = userStyle[style];
+    const pathIdeal = pathIdealStyle[style];
+
+    // 决策风格的匹配度（差距越小越好）
+    const gap = Math.abs(userScore - pathIdeal);
+    const matchScore = Math.max(0, 1 - gap / 10);
+    totalMatch += matchScore;
+  });
+
+  return totalMatch / styles.length;
+}
+
+/**
+ * 计算核心动机匹配度（占10%权重）
+ */
+function calculateMotivationMatch(
+  userMotivations: string[],
+  pathMotivations: string[]
+): number {
+  if (!userMotivations || userMotivations.length === 0) {
+    return 0.5;  // 默认中等匹配
+  }
+
+  // 计算用户动机与路径动机的重叠度
+  const overlap = userMotivations.filter(m => pathMotivations.includes(m)).length;
+  const matchRate = overlap / Math.max(userMotivations.length, pathMotivations.length);
+
+  return matchRate;
+}
+
+/**
+ * 应用一票否决规则
+ * 如果用户触发了路径的强排斥维度，则大幅降低匹配度
+ */
+function applyVetoRules(
+  baseScore: number,
+  userScores: DimensionScores,
+  vetoRules: VetoRule[]
+): number {
+  let penalty = 0;
+
+  vetoRules.forEach(rule => {
+    const userScore = userScores[rule.dimension];
+
+    if (userScore >= rule.threshold) {
+      penalty += rule.penalty;
+    }
+  });
+
+  return Math.max(0, baseScore - penalty);
+}
+
+/**
+ * 计算用户与路径的综合匹配度
+ *
+ * 算法：
+ * 1. 六维度匹配（60%）
+ * 2. 决策风格匹配（25%）
+ * 3. 核心动机匹配（10%）
+ * 4. 自我认知度加分（5%）
+ * 5. 应用一票否决规则
+ */
+export function calculatePathMatch(
+  userScores: DimensionScores,
+  userStyle: DecisionStyle,
+  userMotivations: string[],
+  selfAwareness: SelfAwareness,
+  pathData: CareerPathData
+): number {
+  // 1. 六维度匹配（60%）
+  const dimensionsMatch = calculateDimensionsMatch(userScores, pathData.dimensions);
+
+  // 2. 决策风格匹配（25%）
+  const styleMatch = calculateStyleMatch(userStyle, pathData.idealStyle);
+
+  // 3. 核心动机匹配（10%）
+  const motivationMatch = calculateMotivationMatch(userMotivations, pathData.motivations);
+
+  // 4. 自我认知度加分（5%）
+  // 认知度越高，说明用户越了解自己，结果越可信
+  const awarenessBonus = selfAwareness.score * 0.05;
+
+  // 综合得分
+  let finalScore = dimensionsMatch * 0.6
+                + styleMatch * 0.25
+                + motivationMatch * 0.1
+                + awarenessBonus;
+
+  // 5. 应用一票否决规则
+  finalScore = applyVetoRules(finalScore, userScores, pathData.vetoRules);
+
+  // 6. 增加区分度：使用平方根函数拉大差距
+  finalScore = Math.sqrt(finalScore);
+
+  return finalScore;
+}
+
+/**
+ * 获取所有路径的匹配结果并排序
+ */
+export function getAllPathMatches(
+  dimensionScores: DimensionScores,
+  decisionStyle: DecisionStyle,
+  userMotivations: string[],
+  selfAwareness: SelfAwareness
+): PathMatchResult[] {
+  const paths = Object.keys(PATH_DATA) as CareerPath[];
 
   const results: PathMatchResult[] = paths.map(pathId => {
-    const vector = PATH_VECTORS[pathId];
-    const score = calculatePathMatch(userScores, vector);
-    const matchPercent = calculateMatchPercent(score);
+    const pathData = PATH_DATA[pathId];
+    const score = calculatePathMatch(
+      dimensionScores,
+      decisionStyle,
+      userMotivations,
+      selfAwareness,
+      pathData
+    );
+    const matchPercent = Math.round(score * 100);
 
     return {
       pathId,
@@ -58,53 +292,54 @@ export function getAllPathMatches(userScores: DimensionScores): PathMatchResult[
   return results.sort((a, b) => b.score - a.score);
 }
 
-// 生成完整测试结果 (支持冲突题)
+/**
+ * 生成完整测试结果（v5.0重构版）
+ */
 export function generateTestResult(
   userInfo: UserInfo,
-  answers: Record<string, number>,
-  conflictAnswers?: Record<string, string> // 新增冲突题答案参数
+  rawScores: RawScores,
+  scenarioAnswers: ScenarioAnswer[]
 ): TestResult {
-  // 1. 计算维度得分
-  let dimensionScores = calculateDimensionScores(answers);
+  // 1. 计算加权维度得分（现实30% + 意愿70%）
+  const dimensionScores = calculateWeightedScores(rawScores);
 
-  // 2. 如果有冲突题答案，应用冲突题加分
-  if (conflictAnswers) {
-    CONFLICT_QUESTIONS.forEach(conflictQ => {
-      const selectedOptionId = conflictAnswers[conflictQ.id];
-      const selectedOption = conflictQ.options.find(opt => opt.id === selectedOptionId);
+  // 2. 计算自我认知度
+  const selfAwareness = calculateSelfAwareness(rawScores);
 
-      if (selectedOption) {
-        const dim = selectedOption.dimension;
-        dimensionScores[dim] += selectedOption.bonus;
-      }
-    });
+  // 3. 计算决策风格
+  const decisionStyle = calculateDecisionStyle(scenarioAnswers);
 
-    // 确保分数在合理范围内 [0, 5]
-    Object.keys(dimensionScores).forEach(dim => {
-      dimensionScores[dim as keyof DimensionScores] = Math.max(0, Math.min(5, dimensionScores[dim as keyof DimensionScores]));
-    });
-  }
+  // 4. 获取所有路径匹配结果
+  const pathMatches = getAllPathMatches(
+    dimensionScores,
+    decisionStyle,
+    userInfo.coreMotivations || [],
+    selfAwareness
+  );
 
-  // 3. 获取所有路径匹配结果
-  const pathMatches = getAllPathMatches(dimensionScores);
-
-  // 4. 主路径(得分最高)
+  // 5. 主路径（得分最高）
   const primaryPath = pathMatches[0];
 
-  // 5. 可演化路径(得分第二)
-  const evolvablePath = pathMatches[1];
+  // 6. 可演化路径（得分第二，且与前一名差距<20%）
+  let evolvablePath: PathMatchResult | undefined;
+  if (pathMatches.length > 1) {
+    const scoreGap = pathMatches[0].score - pathMatches[1].score;
+    if (scoreGap < pathMatches[0].score * 0.2) {
+      evolvablePath = pathMatches[1];
+    }
+  }
 
-  // 6. 不优先路径(得分最低的两个)
+  // 7. 不优先路径（得分最低的两个）
   const notPriorityPaths = pathMatches.slice(-2);
 
-  // 7. 生成个性化30天行动清单（根据用户信息定制）
+  // 8. 生成个性化30天行动清单
   let personalizedActionPlan = generatePersonalizedActionPlan(
     userInfo,
     primaryPath.pathId,
     dimensionScores
   );
 
-  // 8. 根据能力得分添加额外提升任务
+  // 9. 根据能力得分添加额外提升任务
   personalizedActionPlan = addAbilityBasedTasks(
     personalizedActionPlan,
     dimensionScores
@@ -114,7 +349,10 @@ export function generateTestResult(
     id: `test_${Date.now()}`,
     timestamp: Date.now(),
     userInfo,
+    rawScores,
     dimensionScores,
+    decisionStyle,
+    selfAwareness,
     primaryPath,
     evolvablePath,
     notPriorityPaths,
@@ -122,7 +360,9 @@ export function generateTestResult(
   };
 }
 
-// 生成能力描述文字
+/**
+ * 生成能力描述文字（辅助函数）
+ */
 export function generateAbilityDescription(scores: DimensionScores): string {
   const { S, A, R, E, X, C } = scores;
 
@@ -145,25 +385,10 @@ export function generateAbilityDescription(scores: DimensionScores): string {
   const top2 = sortedDims[1];
 
   if (scores[top1] >= 4 && scores[top2] >= 4) {
-    return `你的能力结构呈现出"${dimNames[top1]}+${dimNames[top2]}"双强的特征,这意味着你兼具这两种能力优势。`;
+    return `你的能力结构呈现出"${dimNames[top1]}+${dimNames[top2]}"双强的特征，这意味着你兼具这两种能力优势。`;
   } else if (scores[top1] >= 4) {
-    return `你的能力结构呈现出"${dimNames[top1]}"能力突出的特征,这是你的核心优势。`;
+    return `你的能力结构呈现出"${dimNames[top1]}"能力突出的特征，这是你的核心优势。`;
   } else {
-    return `你的能力结构相对均衡,各项能力发展较为平均。`;
+    return `你的能力结构相对均衡，各项能力发展较为平均。`;
   }
-}
-
-// 生成动态差距分析
-export function generateGapAnalysis(pathId: CareerPath, userScores: DimensionScores): string[] {
-  const pathDetail = PATH_DETAILS[pathId];
-  const gaps: string[] = [];
-
-  pathDetail.gapAnalysis.forEach(gap => {
-    const score = userScores[gap.dimension];
-    if (score < gap.threshold) {
-      gaps.push(gap.advice);
-    }
-  });
-
-  return gaps;
 }

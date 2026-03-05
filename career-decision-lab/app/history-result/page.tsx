@@ -12,7 +12,7 @@ import { formatDistanceToNow } from 'date-fns';
 import { zhCN } from 'date-fns/locale';
 import { buildPathExplanation } from '@/lib/explain';
 import { compareTopPaths } from '@/lib/compare';
-import { generateGapAnalysis } from '@/lib/calculator';
+// import { generateGapAnalysis } from '@/lib/calculator'; // TODO: v5.0 重构中暂时移除
 import { PersonalizedSummaryCard } from '@/components/PersonalizedSummaryCard';
 
 function HistoryResultContent() {
@@ -258,8 +258,8 @@ ${result.evolvablePath ? `📈 潜在演化路径：${PATH_DESCRIPTIONS[result.e
               </div>
             </div>
 
-            {/* 新增：能力差距分析 */}
-            {(() => {
+            {/* TODO: v5.0 重构中暂时移除 - 能力差距分析 */}
+            {/* {(() => {
               const gaps = generateGapAnalysis(result.primaryPath.pathId, result.dimensionScores);
               if (gaps.length > 0) {
                 return (
@@ -277,7 +277,7 @@ ${result.evolvablePath ? `📈 潜在演化路径：${PATH_DESCRIPTIONS[result.e
                 );
               }
               return null;
-            })()}
+            })()} */}
 
             {/* 新增：现实岗位映射 */}
             <div className="mt-4 p-4 bg-blue-50 rounded-lg border border-blue-200">

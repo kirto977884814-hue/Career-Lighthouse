@@ -19,7 +19,7 @@ import {
   Check
 } from 'lucide-react';
 import { Radar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, ResponsiveContainer, Cell } from 'recharts';
-import { generateTestResult, generateGapAnalysis } from '@/lib/calculator';
+import { generateTestResult /*, generateGapAnalysis */} from '@/lib/calculator'; // TODO: v5.0 重构中暂时移除 generateGapAnalysis
 import { saveResult } from '@/lib/storage';
 import { TestResult, DIMENSION_NAMES } from '@/types';
 import { ACTION_PLANS } from '@/data/actionPlans';
@@ -285,8 +285,8 @@ ${result.evolvablePath ? `📈 潜在演化路径：${PATH_DESCRIPTIONS[result.e
               </div>
             </div>
 
-            {/* 新增：能力差距分析 */}
-            {(() => {
+            {/* TODO: v5.0 重构中暂时移除 - 能力差距分析 */}
+            {/* {(() => {
               const gaps = generateGapAnalysis(result.primaryPath.pathId, result.dimensionScores);
               if (gaps.length > 0) {
                 return (
@@ -304,7 +304,7 @@ ${result.evolvablePath ? `📈 潜在演化路径：${PATH_DESCRIPTIONS[result.e
                 );
               }
               return null;
-            })()}
+            })()} */}
 
             {/* 新增：现实岗位映射 */}
             <div className="mt-4 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">

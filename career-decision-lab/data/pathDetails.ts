@@ -53,8 +53,8 @@ export const PATH_DETAILS: Record<CareerPath, PathDetailData> = {
     ]
   },
 
-  deepSpecialist: {
-    pathId: 'deepSpecialist',
+  academic: {
+    pathId: 'academic',
     name: '专业深耕型',
     coreAbilities: [
       '抽象逻辑能力高',
@@ -88,8 +88,8 @@ export const PATH_DETAILS: Record<CareerPath, PathDetailData> = {
     ]
   },
 
-  techApplication: {
-    pathId: 'techApplication',
+  tech: {
+    pathId: 'tech',
     name: '技术应用型',
     coreAbilities: [
       '抽象逻辑能力高',
@@ -123,8 +123,8 @@ export const PATH_DETAILS: Record<CareerPath, PathDetailData> = {
     ]
   },
 
-  productStrategy: {
-    pathId: 'productStrategy',
+  professional: {
+    pathId: 'professional',
     name: '产品策略型',
     coreAbilities: [
       '结构化能力高',
@@ -158,8 +158,8 @@ export const PATH_DETAILS: Record<CareerPath, PathDetailData> = {
     ]
   },
 
-  growthOperation: {
-    pathId: 'growthOperation',
+  sales: {
+    pathId: 'sales',
     name: '增长运营型',
     coreAbilities: [
       '执行抗压能力高',
@@ -193,8 +193,8 @@ export const PATH_DETAILS: Record<CareerPath, PathDetailData> = {
     ]
   },
 
-  contentExpression: {
-    pathId: 'contentExpression',
+  creative: {
+    pathId: 'creative',
     name: '内容表达型',
     coreAbilities: [
       '表达能力高',
@@ -228,8 +228,8 @@ export const PATH_DETAILS: Record<CareerPath, PathDetailData> = {
     ]
   },
 
-  educationSupport: {
-    pathId: 'educationSupport',
+  education: {
+    pathId: 'education',
     name: '教育助人型',
     coreAbilities: [
       '共情能力高',
@@ -263,8 +263,8 @@ export const PATH_DETAILS: Record<CareerPath, PathDetailData> = {
     ]
   },
 
-  entrepreneurship: {
-    pathId: 'entrepreneurship',
+  management: {
+    pathId: 'management',
     name: '创业探索型',
     coreAbilities: [
       '风险承受高',

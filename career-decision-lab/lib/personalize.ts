@@ -13,7 +13,7 @@ export type ConfusionCategory =
   | 'further_study'         // 考研/深造
   | 'job_hunting'          // 求职准备
   | 'stability_vs_risk'    // 稳定 vs 风险
-  | 'entrepreneurship'     // 创业
+  | 'management'     // 创业
   | 'interest_ability'     // 兴趣 vs 能力
   | 'general_confusion';   // 普遍困惑
 
@@ -33,7 +33,7 @@ const CONFUSION_KEYWORDS: Record<ConfusionCategory, string[]> = {
   further_study: ['考研', '深造', '读研', '研究生', '学术', '导师', '科研'],
   job_hunting: ['工作', '就业', '求职', '面试', '简历', '实习', 'offer', '招聘'],
   stability_vs_risk: ['稳定', '公务员', '体制', '国企', '创业', '风险', '安全感'],
-  entrepreneurship: ['创业', '自己做', '老板', '创业', '公司'],
+  management: ['创业', '自己做', '老板', '创业', '公司', '管理', '领导'],
   interest_ability: ['兴趣', '喜欢', '不喜欢', '想做', '能力', '擅长'],
   general_confusion: ['困惑', '迷茫', '不知道', '怎么办', '焦虑', '不确定']
 };
@@ -56,7 +56,7 @@ export function analyzeUserConfusion(confusionText: string): ConfusionCategory[]
     further_study: 0,
     job_hunting: 0,
     stability_vs_risk: 0,
-    entrepreneurship: 0,
+    management: 0,
     interest_ability: 0,
     general_confusion: 0
   };
@@ -155,7 +155,7 @@ function getCategorySummary(category: ConfusionCategory): string {
     further_study: '考研是一个需要慎重考虑的重要决定。',
     job_hunting: '求职准备是一个系统性的工程，需要提前规划。',
     stability_vs_risk: '你在思考稳定与风险之间的平衡，这关系到人生选择。',
-    entrepreneurship: '创业需要勇气，也需要充分的准备。',
+    management: '创业需要勇气，也需要充分的准备。',
     interest_ability: '兴趣和能力的匹配是职业满意度的关键。',
     general_confusion: '困惑是正常的，让我们一步步来分析。'
   };
@@ -197,7 +197,7 @@ function getDetailedSuggestions(
       '没有绝对的好与坏，关键是要符合自己的价值观。',
       '可以在早期多尝试，找到最适合自己的节奏。'
     ],
-    entrepreneurship: [
+    management: [
       '创业前建议先在相关领域积累经验，降低试错成本。',
       scores.X > 3.5 ? '你的执行抗压能力不错，这是创业者的必备素质。' : '建议在创业前多锻炼抗压能力。',
       '寻找合适的合伙人比单打独斗更容易成功。'
@@ -222,13 +222,13 @@ function getDetailedSuggestions(
  */
 function getRelevantPaths(category: ConfusionCategory): CareerPath[] {
   const pathMap: Record<ConfusionCategory, CareerPath[]> = {
-    career_direction: ['techApplication', 'productStrategy', 'deepSpecialist'],
-    skill_development: ['deepSpecialist', 'techApplication'],
-    further_study: ['deepSpecialist', 'stable'],
-    job_hunting: ['growthOperation', 'techApplication', 'productStrategy'],
-    stability_vs_risk: ['stable', 'entrepreneurship'],
-    entrepreneurship: ['entrepreneurship', 'productStrategy'],
-    interest_ability: ['contentExpression', 'educationSupport'],
+    career_direction: ['tech', 'professional', 'academic'],
+    skill_development: ['academic', 'tech'],
+    further_study: ['academic', 'stable'],
+    job_hunting: ['sales', 'tech', 'professional'],
+    stability_vs_risk: ['stable', 'management'],
+    management: ['management', 'professional'],
+    interest_ability: ['creative', 'education'],
     general_confusion: []
   };
 
@@ -282,7 +282,7 @@ function getPriorityActions(
         '和选择不同路径的前辈深入交流'
       );
       break;
-    case 'entrepreneurship':
+    case 'management':
       actions.push(
         '找到真实的市场痛点，而不是假想的需求',
         '在现有工作/学习环境中小规模验证想法',

@@ -21,7 +21,7 @@ export function generatePersonalizedActionPlan(
 
   // 根据用户情况定制计划
   const customizedPlan = customizeWeek1(basePlan, userInfo, dimensionScores);
-  const enhancedPlan = addConfusionBasedTasks(customizedPlan, currentConfusion);
+  const enhancedPlan = addConfusionBasedTasks(customizedPlan, currentConfusion || '');
 
   return enhancedPlan;
 }
