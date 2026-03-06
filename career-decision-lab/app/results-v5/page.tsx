@@ -135,10 +135,10 @@ function ResultsContent() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 to-blue-50 dark:from-slate-900 dark:to-blue-900">
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-slate-600 dark:text-slate-400">正在生成你的个性化报告...</p>
+          <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-amber-400 mx-auto mb-4"></div>
+          <p className="text-amber-300 text-lg">🔦 灯塔正在扫描你的能力...</p>
         </div>
       </div>
     );
@@ -157,7 +157,7 @@ function ResultsContent() {
   const primaryPathInfo = PATH_DATA[result.primaryPath.pathId];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 dark:from-slate-900 dark:to-blue-900 py-8 px-4">
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900 py-8 px-4">
       <div className="max-w-6xl mx-auto">
         {/* 顶部导航 */}
         <div className="flex items-center justify-between mb-8">
@@ -189,58 +189,60 @@ function ResultsContent() {
 
         {/* 主标题 */}
         <div className="text-center mb-12">
-          <div className="inline-flex items-center gap-2 px-4 py-2 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 rounded-full text-sm font-medium mb-4">
+          <div className="inline-flex items-center gap-2 px-4 py-2 bg-amber-100/10 dark:bg-amber-900/30 text-amber-300 dark:text-amber-300 rounded-full text-sm font-medium mb-4">
             <Sparkles className="w-4 h-4" />
-            <span>职业灯塔 v5.0</span>
+            <span>职业灯塔</span>
           </div>
-          <h1 className="text-4xl font-bold text-slate-900 dark:text-white mb-2">
-            你的个性化职业发展报告
+          <h1 className="text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-amber-300 via-amber-400 to-yellow-300 mb-2">
+            👋 你好！职业灯塔为你而亮。
           </h1>
-          <p className="text-slate-600 dark:text-slate-400">
-            基于六维度能力评估 + AI智能分析
+          <p className="text-blue-200 dark:text-blue-300">
+            在迷茫的黑夜里，我们用科学为你点亮灯塔
           </p>
-          <p className="text-sm text-slate-500 dark:text-slate-500 mt-2">
+          <p className="text-sm text-blue-300/70 dark:text-blue-400/70 mt-2">
             测试时间：{new Date(result.timestamp).toLocaleString('zh-CN')}
           </p>
         </div>
 
-        {/* ========== 第1层：AI个性化分析 ========== */}
+        {/* ========== 第1层：困惑解答 ========== */}
         <section className="mb-8">
           <div className="flex items-center justify-between mb-4 cursor-pointer" onClick={() => toggleSection('ai-analysis')}>
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center">
-                <Brain className="w-5 h-5 text-white" />
+              <div className="w-10 h-10 rounded-full bg-gradient-to-br from-amber-500 to-yellow-500 flex items-center justify-center">
+                <Lightbulb className="w-5 h-5 text-white" />
               </div>
               <div>
-                <h2 className="text-2xl font-bold text-slate-900 dark:text-white">AI个性化分析</h2>
-                <p className="text-sm text-slate-600 dark:text-slate-400">困境解答 + 核心发现</p>
+                <h2 className="text-2xl font-bold text-amber-300">针对你的困惑</h2>
+                <p className="text-sm text-blue-200">AI个性化解答</p>
               </div>
             </div>
-            {expandedSections.has('ai-analysis') ? <ChevronUp className="w-5 h-5 text-slate-600" /> : <ChevronDown className="w-5 h-5 text-slate-600" />}
+            {expandedSections.has('ai-analysis') ? <ChevronUp className="w-5 h-5 text-blue-200" /> : <ChevronDown className="w-5 h-5 text-blue-200" />}
           </div>
 
           {expandedSections.has('ai-analysis') && (
-            <PersonalizedSummaryCard
-              summary={aiSummary}
-              isLoading={summaryLoading}
-              error={null}
-            />
+            <div className="mt-4">
+              <PersonalizedSummaryCard
+                summary={aiSummary}
+                isLoading={summaryLoading}
+                error={null}
+              />
+            </div>
           )}
         </section>
 
-        {/* ========== 第2层：匹配结果 ========== */}
+        {/* ========== 第2层：灯塔照亮了这些方向 ========== */}
         <section className="mb-8">
           <div className="flex items-center justify-between mb-4 cursor-pointer" onClick={() => toggleSection('match-results')}>
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-full bg-gradient-to-br from-green-500 to-emerald-500 flex items-center justify-center">
-                <Target className="w-5 h-5 text-white" />
+              <div className="w-10 h-10 rounded-full bg-gradient-to-br from-amber-500 to-yellow-500 flex items-center justify-center">
+                <Sparkles className="w-5 h-5 text-white" />
               </div>
               <div>
-                <h2 className="text-2xl font-bold text-slate-900 dark:text-white">路径匹配结果</h2>
-                <p className="text-sm text-slate-600 dark:text-slate-400">基于六维度能力的综合评估</p>
+                <h2 className="text-2xl font-bold text-amber-300">✨ 灯塔照亮了这些方向</h2>
+                <p className="text-sm text-blue-200">基于六维度能力的综合评估</p>
               </div>
             </div>
-            {expandedSections.has('match-results') ? <ChevronUp className="w-5 h-5 text-slate-600" /> : <ChevronDown className="w-5 h-5 text-slate-600" />}
+            {expandedSections.has('match-results') ? <ChevronUp className="w-5 h-5 text-blue-200" /> : <ChevronDown className="w-5 h-5 text-blue-200" />}
           </div>
 
           {expandedSections.has('match-results') && (
@@ -296,8 +298,8 @@ function ResultsContent() {
               {result.evolvablePath && (
                 <div className="bg-white dark:bg-slate-800 p-6 rounded-xl border border-slate-200 dark:border-slate-700">
                   <div className="flex items-center gap-2 mb-3">
-                    <TrendingUp className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
-                    <h3 className="text-lg font-bold text-slate-900 dark:text-white">可演化路径</h3>
+                    <Sparkles className="w-5 h-5 text-amber-600 dark:text-amber-400" />
+                    <h3 className="text-lg font-bold text-slate-900 dark:text-white">🌟 灯塔还发现了这些可能</h3>
                     <span className="text-sm text-slate-600 dark:text-slate-400">（未来可能发展的方向）</span>
                   </div>
 
@@ -338,19 +340,19 @@ function ResultsContent() {
           )}
         </section>
 
-        {/* ========== 第3层：能力结构分析 ========== */}
+        {/* ========== 第3层：灯塔扫描结果 ========== */}
         <section className="mb-8">
           <div className="flex items-center justify-between mb-4 cursor-pointer" onClick={() => toggleSection('ability-analysis')}>
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-full bg-gradient-to-br from-orange-500 to-red-500 flex items-center justify-center">
+              <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center">
                 <Sparkles className="w-5 h-5 text-white" />
               </div>
               <div>
-                <h2 className="text-2xl font-bold text-slate-900 dark:text-white">能力结构分析</h2>
-                <p className="text-sm text-slate-600 dark:text-slate-400">六维度能力分布 + 自我认知度</p>
+                <h2 className="text-2xl font-bold text-amber-300">🔦 灯塔扫描结果</h2>
+                <p className="text-sm text-blue-200">六维度能力分布 + 自我认知度</p>
               </div>
             </div>
-            {expandedSections.has('ability-analysis') ? <ChevronUp className="w-5 h-5 text-slate-600" /> : <ChevronDown className="w-5 h-5 text-slate-600" />}
+            {expandedSections.has('ability-analysis') ? <ChevronUp className="w-5 h-5 text-blue-200" /> : <ChevronDown className="w-5 h-5 text-blue-200" />}
           </div>
 
           {expandedSections.has('ability-analysis') && (
@@ -416,19 +418,19 @@ function ResultsContent() {
           )}
         </section>
 
-        {/* ========== 第4层：行动计划 ========== */}
+        {/* ========== 第4层：照亮前路 ========== */}
         <section className="mb-8">
           <div className="flex items-center justify-between mb-4 cursor-pointer" onClick={() => toggleSection('action-plan')}>
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-full bg-gradient-to-br from-emerald-500 to-teal-500 flex items-center justify-center">
+              <div className="w-10 h-10 rounded-full bg-gradient-to-br from-amber-500 to-yellow-500 flex items-center justify-center">
                 <Lightbulb className="w-5 h-5 text-white" />
               </div>
               <div>
-                <h2 className="text-2xl font-bold text-slate-900 dark:text-white">行动计划</h2>
-                <p className="text-sm text-slate-600 dark:text-slate-400">AI个性化建议 + 4周行动清单</p>
+                <h2 className="text-2xl font-bold text-amber-300">💡 照亮前路</h2>
+                <p className="text-sm text-blue-200">AI个性化建议 + 4周行动清单</p>
               </div>
             </div>
-            {expandedSections.has('action-plan') ? <ChevronUp className="w-5 h-5 text-slate-600" /> : <ChevronDown className="w-5 h-5 text-slate-600" />}
+            {expandedSections.has('action-plan') ? <ChevronUp className="w-5 h-5 text-blue-200" /> : <ChevronDown className="w-5 h-5 text-blue-200" />}
           </div>
 
           {expandedSections.has('action-plan') && (
@@ -468,13 +470,30 @@ function ResultsContent() {
           )}
         </section>
 
-        {/* ========== 第5层：反思引导 ========== */}
+        {/* ========== 第5层：继续探索 ========== */}
         <section className="mb-8">
-          <ReflectionPromptCard
-            prompt={aiReflection}
-            isLoading={reflectionLoading}
-            error={null}
-          />
+          <div className="flex items-center justify-between mb-4 cursor-pointer" onClick={() => toggleSection('reflection')}>
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center">
+                <Brain className="w-5 h-5 text-white" />
+              </div>
+              <div>
+                <h2 className="text-2xl font-bold text-amber-300">🤔 继续探索</h2>
+                <p className="text-sm text-blue-200">自我反思 + 深度探索</p>
+              </div>
+            </div>
+            {expandedSections.has('reflection') ? <ChevronUp className="w-5 h-5 text-blue-200" /> : <ChevronDown className="w-5 h-5 text-blue-200" />}
+          </div>
+
+          {expandedSections.has('reflection') && (
+            <div className="mt-4">
+              <ReflectionPromptCard
+                prompt={aiReflection}
+                isLoading={reflectionLoading}
+                error={null}
+              />
+            </div>
+          )}
         </section>
 
         {/* 底部CTA */}
@@ -501,10 +520,10 @@ function ResultsContent() {
 export default function ResultsPage() {
   return (
     <Suspense fallback={
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 to-blue-50 dark:from-slate-900 dark:to-blue-900">
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-slate-600 dark:text-slate-400">加载中...</p>
+          <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-amber-400 mx-auto mb-4"></div>
+          <p className="text-amber-300 text-lg">🔦 灯塔正在扫描你的能力...</p>
         </div>
       </div>
     }>
