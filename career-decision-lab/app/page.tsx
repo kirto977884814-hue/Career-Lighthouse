@@ -221,20 +221,13 @@ export default function WelcomePage() {
             <QuestionnaireTip variant="simple" animated={false} />
           </div>
 
-          <div className="flex flex-col sm:flex-row gap-4 justify-center pt-4">
+          <div className="flex justify-center pt-4">
             <Link
               href="/history"
               className="inline-flex items-center gap-2 text-blue-100 hover:text-white font-medium px-6 py-3 rounded-xl transition-colors border-2 border-blue-400/30 hover:border-blue-400"
             >
               <BarChart3 className="w-5 h-5" />
               查看过往测试结果
-            </Link>
-            <Link
-              href="/questionnaire"
-              className="inline-flex items-center gap-2 text-blue-300 hover:text-blue-100 font-medium px-6 py-3 rounded-xl transition-colors border border-blue-400/20 hover:bg-blue-800/30"
-            >
-              使用旧版测试
-              <span className="text-xs bg-blue-800/50 px-2 py-1 rounded">v4.0</span>
             </Link>
           </div>
         </div>

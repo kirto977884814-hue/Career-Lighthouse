@@ -54,13 +54,13 @@ export default function QuestionnaireTip({
     <div
       className={`${
         animated ? 'animate-slide-down' : ''
-      } bg-gradient-to-r from-blue-50 to-amber-50 dark:from-blue-900/20 dark:to-amber-900/20 border-2 border-blue-200 dark:border-blue-700 rounded-2xl p-6 relative`}
+      } bg-slate-800/50 backdrop-blur border-2 border-amber-500/30 rounded-2xl p-6 relative`}
     >
       {/* 关闭按钮 */}
       {onDismiss && (
         <button
           onClick={onDismiss}
-          className="absolute top-4 right-4 text-slate-400 hover:text-slate-600 dark:text-slate-500 dark:hover:text-slate-300 transition-colors"
+          className="absolute top-4 right-4 text-blue-300 hover:text-amber-300 transition-colors"
           aria-label="关闭提示"
         >
           <X className="w-5 h-5" />
@@ -69,14 +69,14 @@ export default function QuestionnaireTip({
 
       {/* 标题 */}
       <div className="flex items-center gap-3 mb-4">
-        <div className="flex-shrink-0 w-10 h-10 bg-gradient-to-br from-blue-500 to-amber-400 rounded-xl flex items-center justify-center shadow-lg">
+        <div className="flex-shrink-0 w-10 h-10 bg-gradient-to-br from-blue-600 to-amber-500 rounded-xl flex items-center justify-center shadow-lg">
           <Lightbulb className="w-6 h-6 text-white" />
         </div>
         <div>
-          <h3 className="text-xl font-bold text-slate-900 dark:text-white">
+          <h3 className="text-xl font-bold text-amber-300">
             💡 小贴士
           </h3>
-          <p className="text-sm text-slate-600 dark:text-slate-400">
+          <p className="text-sm text-blue-200">
             {variant === 'simple'
               ? '保证结果准确的关键'
               : '这份问卷会根据你的真实情况，为你生成个性化的职业建议'}
@@ -86,7 +86,7 @@ export default function QuestionnaireTip({
 
       {/* 完整版的开场白 */}
       {variant === 'full' && (
-        <p className="text-slate-700 dark:text-slate-300 mb-4 leading-relaxed">
+        <p className="text-blue-100 mb-4 leading-relaxed">
           为了保证结果准确，请：
         </p>
       )}
@@ -96,9 +96,9 @@ export default function QuestionnaireTip({
         {tips.map((tip, index) => (
           <li
             key={index}
-            className="flex items-start gap-3 text-slate-700 dark:text-slate-300"
+            className="flex items-start gap-3 text-blue-100"
           >
-            <CheckCircle2 className="w-5 h-5 text-green-600 dark:text-green-400 flex-shrink-0 mt-0.5" />
+            <CheckCircle2 className="w-5 h-5 text-amber-400 flex-shrink-0 mt-0.5" />
             <span className="leading-relaxed">{tip}</span>
           </li>
         ))}
@@ -106,8 +106,8 @@ export default function QuestionnaireTip({
 
       {/* 完整版的额外说明 */}
       {variant === 'full' && (
-        <div className="mt-4 pt-4 border-t border-blue-200 dark:border-blue-700">
-          <p className="text-sm text-slate-600 dark:text-slate-400 italic">
+        <div className="mt-4 pt-4 border-t border-amber-500/30">
+          <p className="text-sm text-blue-200 italic">
             🕒 预计用时：8-12分钟 | 共47题 | 建议一次性完成
           </p>
         </div>
