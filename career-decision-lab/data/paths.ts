@@ -438,16 +438,7 @@ export const PATH_DESCRIPTIONS: Record<CareerPath, any> = {
   sales: PATH_DATA.sales,
   creative: PATH_DATA.creative,
   education: PATH_DATA.education,
-  management: PATH_DATA.management,
-  // 向后兼容：旧路径ID映射到新路径
-  deepSpecialist: PATH_DATA.academic,
-  techApplication: PATH_DATA.tech,
-  stableCareer: PATH_DATA.stable,
-  productStrategy: PATH_DATA.professional,
-  growthOperation: PATH_DATA.sales,
-  contentCreation: PATH_DATA.creative,
-  educationCareer: PATH_DATA.education,
-  entrepreneurship: PATH_DATA.management
+  management: PATH_DATA.management
 };
 
 /**

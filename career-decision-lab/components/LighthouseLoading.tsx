@@ -10,7 +10,7 @@
 
 'use client';
 
-import { LighthouseIcon } from './LighthouseIcon';
+import LighthouseIcon from './LighthouseIcon';
 
 interface LighthouseLoadingProps {
   /**

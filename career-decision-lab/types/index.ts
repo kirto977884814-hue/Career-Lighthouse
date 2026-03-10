@@ -73,6 +73,7 @@ export interface ReflectionQuestion {
   text: string;
   placeholder: string;
   multiline?: boolean;
+  required?: boolean;  // 添加required字段
 }
 
 // 用户基础信息
